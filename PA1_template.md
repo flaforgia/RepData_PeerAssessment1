@@ -133,7 +133,7 @@ hist(SumPerDay[,1],
 axis(1, at=bins, labels=bins)
 ```
 
-![](figure/unnamed-chunk-4-1.png) 
+![](figure/fig1_mean_step-1.png) 
  
 I choose to draw a 25 bins histogram to have a broader view of the distribution. If I've chosen less the result will have been smoothed and I will have lost some interesting information, like the outliers for instance.     From the histogram, I can note that the distribution is is unimodal, (there is only one peak); widely spread (from almost 41 steps to almost 22000 steps) and symetric. Also there is an balance between roughly 8000 and 13000 steps per day.  
 The plot shows also there is five potential outliers that can't be explained with just a histogram.    
@@ -206,7 +206,7 @@ axis(1,
      'day')
 ```
 
-![](figure/unnamed-chunk-7-1.png) 
+![](figure/fig2_mean_increment-1.png) 
 
 The plot shows activities start around 05:25. Based on the time of the increment, I would assume this correspond of the wake up of the user. The biggest peak is after the start of the activities, maybe a jogging.  
 All the day the activities are recorded with no high peak and they slowly decrease in the evening.  
@@ -344,7 +344,7 @@ hist(SumPerDayNA[,1],
 axis(1, at=bins, labels=bins)
 ```
 
-![](figure/unnamed-chunk-15-1.png) 
+![](figure/fig3_missing_values-1.png) 
 
 The new plot, compared to the previous one, shows an increase in the range between roughly 8000 and 13000 steps. The values reported by the MeanPerDay data frame explain this behavior.  
 
@@ -475,7 +475,7 @@ axis(1,
      'day')
 ```
 
-![](figure/unnamed-chunk-20-1.png) 
+![](figure/fig4_wekdays_weekends-1.png) 
 
 The plot shows that there is a relation between the days of the week and the activity. The activity is more important during the early morning in the weekdays. This seems to show that the user is someone who do sport in the morning because the maximum steps is in the morning (206.17, 08:35). This maximum is reached only during the weekdays as the cross comparison between the plots can show. Also the peaks during the working hours are see are located in the weekend plot.  
 One assumption that can explain this is if the user of the device is potentially an office worker (low steps during the working hours in the weekdays) doing his/her sport before going to work. It is diffcult with only these plots to figure out why there is an increase in the steps number during the working hours of the weekend but one assumption can be that the user is active during the weekend doing some external activity.

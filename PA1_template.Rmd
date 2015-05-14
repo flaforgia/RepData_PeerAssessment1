@@ -101,7 +101,7 @@ head(SumPerDay)
  
 The histogram has been drawn with the basic plot functions. To ease the reading I colored the bins in different colors.
 
-```{r fig.height=5, fig.width=10, fig.path='figure/'}
+```{r fig1_mean_step, fig.height=5, fig.width=10, fig.path='figure/'}
 bins <- seq(min(min(SumPerDay[,1])), max(SumPerDay[,1]), 846.12)
 colors <- c("red", "yellow", "green", "violet", "orange", "blue", "pink", "cyan") 
 hist(SumPerDay[,1], 
@@ -149,7 +149,7 @@ head(MeanPerIncrement)
 
 The plot is a time serie done with the basic plot fuctions and the type 'l'.
 
-```{r fig.height=5, fig.width=10, fig.path='figure/'}
+```{r fig2_mean_increment, fig.height=5, fig.width=10, fig.path='figure/'}
 plot(MeanPerIncrement[,1], 
      type='l', 
      xaxt='n',
@@ -266,7 +266,7 @@ print(SumPerDayNA[1,1:2])
 
 I Plotted the histogram with the same graphics parameters than the one in part *"What is mean total number of steps taken per day?"* to keep the coherency between the two plots.  
 
-```{r fig.height=5, fig.width=10, fig.path='figure/'}
+```{r fig3_missing_values, fig.height=5, fig.width=10, fig.path='figure/'}
 colors <- c("red", "yellow", "green", "violet", "orange", "blue", "pink", "cyan") 
 bins <- seq(min(min(SumPerDayNA[,1])), max(SumPerDayNA[,1]), 846.12)
 hist(SumPerDayNA[,1], 
@@ -319,7 +319,7 @@ The computation of the information is done on the average number of steps per ti
 
 I Filled the NAs with the mean per increment already computed in the part "Average Daily Pattern". I recycled the code alredy used for the part *"Imputing missing values"* and so the NAs are filled with the mean of the same complete increment (00:00 -> 00:00, 00:05 -> 00:05 ...) 
 
-```{r fig.height=5, fig.width=10}
+```{r}
 WeekEnds <- c('Saturday', 'Sunday')
 WeekDays <- DayName[! DayName %in% WeekEnds]
 
@@ -365,7 +365,7 @@ for(i in  unique(WeekendsOfActivity[,2])) {
 
 I used the same graphical parameters than the ones in *"What is mean total number of steps taken per day?"* to draw the time series.
 
-```{r fig.height=9, fig.width=12, fig.path='figure/'}
+```{r fig4_wekdays_weekends, fig.height=9, fig.width=12, fig.path='figure/'}
 par(mfrow = c(2,1))
 
 par(mar = c(bottom=1.5, 5.1, top=4, 2.1))
