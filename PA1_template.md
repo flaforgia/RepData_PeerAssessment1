@@ -30,8 +30,11 @@ The zipped file must be saved in the same directory than this Rmd file. Once it 
 
 
 ```r
+url <- ("http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip")
+download.file(url, 'activity.zip', mode='wb')
 unzip('activity.zip')
 Activity <- read.csv('activity.csv')
+unlink(url)
 head(Activity)
 ```
 
