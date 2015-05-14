@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Reproducible Research: Peer Assessment 1</title>
+
+<script src="PA1_template_files/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="PA1_template_files/bootstrap-2.3.2/css/bootstrap.min.css" rel="stylesheet" />
+<link href="PA1_template_files/bootstrap-2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<script src="PA1_template_files/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="PA1_template_files/highlight/default.css"
+      type="text/css" />
+<script src="PA1_template_files/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div id="header">
+<h1 class="title">Reproducible Research: Peer Assessment 1</h1>
+</div>
+
+
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>This document will detail the work done on the dataset “Activity monitoring data” which describe the data collected from a personal activity device that monitors the number of steps.This analysis is split in two parts.<br />The first part (<em>“What is mean total number of steps taken per day?”</em> and <em>“Imputing missing values”</em>) shows that, when the NAs are filled there is a change in the distribution but this stays coherent with the distribution computed when the NAs are excluded.<br />The second part is a time serie analysis (<em>“What is the average daily activity pattern?”</em> and <em>“Are there differences in activity patterns between weekdays and weekends?”</em>) which will show that the activity is different depending on the days of the week (weekdays or weekend) where the measurment is done.</p>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The collect of physiscal information (movment, heartbeat, …) of a person is now possible with portable personal devices such as the <a href="http://www.nike.com/us/en_us/c/nikeplus-fuelband">Nike Fuelband</a>, the <a href="https://jawbone.com/up">jawbone up</a> or the <a href="http://www.fitbit.com/">fitbit</a>. Thanks to this devices, health informations are collected but they remain underutilized because there is a lack of statistical methods and software for processing and interpreting the data.</p>
+<p>This document goal is to provide information contained in a dataset of steps activity for an user and to make basic analysis of them. The dataset counted the number of steps done over a period of two months (October to November 2012). The data are collected at 5 minutes interval through out the day.</p>
+<p>The analysis will try to answer to two questions, is there is a change in the data distribution if a default value is given to the NAs?<br />And can we figure out if there is a modification of the activity depending on the day of the week where the measurment is done?<br />There is four analysis parts in this document. Each part contain the information about the code used, a plot of the data after their transformation and an analysis of the plot.</p>
+<p>There is also a part about the data collection and the transformations applied to the original dataset.</p>
+</div>
+<div id="loading-and-preprocessing-the-data" class="section level2">
+<h2>Loading and preprocessing the data</h2>
+<p>The dataset has been downloaded from a web repository (<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Download here</a>), the file is provided as a zip file. After being unzipped, it has been loaded in R as a data frame.</p>
+<pre class="r"><code>unzip(&#39;activity.zip&#39;)
+Activity &lt;- read.csv(&#39;activity.csv&#39;)
+head(Activity)</code></pre>
+<pre><code>##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25</code></pre>
+<p>The dataset has 3 variables:</p>
+<ul>
+<li><strong>steps</strong>: The number of steps measured</li>
+<li><strong>date</strong>: The date of the measurment (61 days)</li>
+<li><strong>interval</strong>: The interval of time at which the measurment was done (288 times per day)</li>
+</ul>
+<p>I did not transform the dataset itself but I built additional subsets that I thought could be useful in the later computations.<br />I copied the original dataset two times, one with only the complete cases (<strong><em>Activity2</em></strong>) and the other with only the NAs (<strong><em>Activity.NA</em></strong>). I did that to keep the original dataset untouched and to avoid the risk to corrupt the original data.<br />I also converted the date and time in the correct format (<strong><em>DayName</em></strong> and <strong><em>TimeFreq</em></strong>).</p>
+<pre class="r"><code>Activity1 &lt;- Activity
+Activity2 &lt;- Activity1[complete.cases(Activity1),]
+Activity.NA &lt;- Activity1[!complete.cases(Activity1),]
+IncrementDF &lt;- Activity1[,3]
+DateUnique &lt;- unique(Activity1[,2])
+DayName &lt;- as.character(unique(weekdays(as.Date(DateUnique))))
+
+Time_convert &lt;- function(x,y) {
+        paste(rep(x,y), sep=&quot;&quot;, collapse=&quot;&quot;)
+        }
+Time.temp &lt;- mapply(Time_convert, 0, 4-nchar(unique(IncrementDF)))
+Increment.time &lt;- paste(Time.temp, IncrementDF, sep=&quot;&quot;)
+TimeFreq &lt;- format(strptime(Increment.time, 
+                            format=&quot;%H%M&quot;), format=&quot;%H:%M&quot;)
+
+time.df &lt;- as.data.frame(TimeFreq)</code></pre>
+</div>
+<div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
+<h2>What is mean total number of steps taken per day?</h2>
+<p>In this part I will calculate the total number of steps taken each day and draw a histogram from these values. Finally I will also calculate the mean and median value for each value of steps.</p>
+<p>To calculate the number of steps per day I did the sum of all the values of increment for one day and I stored these values in a single data frame that I plotted. This resulted in a 61 rows data frame. 61 is the number of observations with the NA added. I choosed to exclude the NAs from the final data frame because they will be tranformed in 0 during the plot and they will be added to the observation. This should not change a lot the distribution but this will not reflect the reality as NAs are not data.<br />NA is different from 0 because it means that we don’t have the information about the number of steps (maybe the device was switched off) when 0 means that we have an information, the user did not do steps (maybe the user was not wearing the device but it was still on). So using 0 instead of NA is equivalent to give a value to the observation which is not the purpose of this question of the asssignment.</p>
+<p><strong>NB:</strong><br />* More information about the NAs are available in the part <em>“Imputing missing values”</em> of this document.<br />* I took a sample of the untouched data (ex1) to show later that there was a modification of the NA value (cf. <em>“Imputing missing values”</em> part of this document).</p>
+<pre class="r"><code>sum.df &lt;- data.frame()
+for(i in unique(Activity1[,2])) {
+        
+        sum.df &lt;- rbind(sum.df, 
+                        sum(Activity1[Activity1$date == i,1]))
+}
+SumPerDayNA &lt;- cbind(sum.df, unique(Activity1$date))
+ex1 &lt;- SumPerDayNA[1,1:2]
+colnames(ex1) &lt;- c(&#39;steps&#39;, &#39;date&#39;)
+SumPerDay &lt;- SumPerDayNA[complete.cases(SumPerDayNA),]
+colnames(SumPerDay) &lt;- c(&#39;sum&#39;, &#39;date&#39;)
+head(SumPerDay)</code></pre>
+<pre><code>##     sum       date
+## 2   126 2012-10-02
+## 3 11352 2012-10-03
+## 4 12116 2012-10-04
+## 5 13294 2012-10-05
+## 6 15420 2012-10-06
+## 7 11015 2012-10-07</code></pre>
+<p>The histogram has been drawn with the basic plot functions. To ease the reading I colored the bins in different colors.</p>
+<pre class="r"><code>bins &lt;- seq(min(min(SumPerDay[,1])), max(SumPerDay[,1]), 846.12)
+colors &lt;- c(&quot;red&quot;, &quot;yellow&quot;, &quot;green&quot;, &quot;violet&quot;, &quot;orange&quot;, &quot;blue&quot;, &quot;pink&quot;, &quot;cyan&quot;) 
+hist(SumPerDay[,1], 
+     main=&#39;Total Number Of Steps Each Day&#39;, 
+     xlab=&#39;Steps&#39;,
+     xaxt=&#39;n&#39;,
+     right=FALSE, 
+     col=colors, 
+     breaks=bins, 
+     ylim=c(0,10))
+axis(1, at=bins, labels=bins)</code></pre>
+<p><img src="figure/unnamed-chunk-4-1.png" /></p>
+<p>I choose to draw a 25 bins histogram to have a broader view of the distribution. If I’ve chosen less the result will have been smoothed and I will have lost some interesting information, like the outliers for instance. From the histogram, I can note that the distribution is is unimodal, (there is only one peak); widely spread (from almost 41 steps to almost 22000 steps) and symetric. Also there is an balance between roughly 8000 and 13000 steps per day.<br />The plot shows also there is five potential outliers that can’t be explained with just a histogram.<br />The mean and the median are calculated from the data frame.</p>
+<pre class="r"><code>MeanPerDayNoNA &lt;- mean(SumPerDay[,1])
+MedianPerDayNoNA &lt;- median(SumPerDay[,1])
+print(MeanPerDayNoNA)</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
+<pre class="r"><code>print(MedianPerDayNoNA)</code></pre>
+<pre><code>## [1] 10765</code></pre>
+<p>Again this result shows that the distribution is symetric.</p>
+</div>
+<div id="what-is-the-average-daily-activity-pattern" class="section level2">
+<h2>What is the average daily activity pattern?</h2>
+<p>In this point, I will calculate the average number of steps per 5 minutes increments across all days and I will plot a time serie with these values.<br />I will use a for loop to filter the data by the increment and I will calculate the mean for all the values returned by the filter. I will repeat this operation for all the single increments (i.e. 288 times).<br />I will store all the data in a data frame that I will use for the time serie. I didn’t include the NAs.</p>
+<pre class="r"><code>MeanPerIncrement &lt;- data.frame()
+for(i in  unique(Activity[,3])) {
+        MeanPerIncrement &lt;- rbind(MeanPerIncrement, 
+                                  mean(Activity2[Activity2$interval == i,1]))
+        }
+MeanPerIncrement &lt;- cbind(MeanPerIncrement, 
+                          unique(time.df[,1]))
+colnames(MeanPerIncrement) &lt;- c(&#39;mean&#39;, &#39;Increment&#39;)
+head(MeanPerIncrement)</code></pre>
+<pre><code>##        mean Increment
+## 1 1.7169811     00:00
+## 2 0.3396226     00:05
+## 3 0.1320755     00:10
+## 4 0.1509434     00:15
+## 5 0.0754717     00:20
+## 6 2.0943396     00:25</code></pre>
+<p>The plot is a time serie done with the basic plot fuctions and the type ‘l’.</p>
+<pre class="r"><code>plot(MeanPerIncrement[,1], 
+     type=&#39;l&#39;, 
+     xaxt=&#39;n&#39;,
+     xlab=&quot;Day By Time Increments Of 5 Minutes&quot;, 
+     ylab=&quot;Average Number Of Steps Per Increment&quot;, 
+     main=&quot;Time Serie From The Average Number Of Steps Per 5 Minutes Increment Across The Day&quot;)
+axis(1, 
+     at=c(1:288), 
+     labels=as.character(unique(TimeFreq)), 
+     &#39;day&#39;)</code></pre>
+<p><img src="figure/unnamed-chunk-7-1.png" /></p>
+<p>The plot shows activities start around 05:25. Based on the time of the increment, I would assume this correspond of the wake up of the user. The biggest peak is after the start of the activities, maybe a jogging.<br />All the day the activities are recorded with no high peak and they slowly decrease in the evening.<br />I can’t do more analysis around this plot but I will go back to it when I will talk about the split between weekday and weekend later.<br />According to the plot, the maximum value of the steps is roughly around 08:40 and this value is above 200.<br />To be more precise I used a data frame filter as follow.</p>
+<pre class="r"><code>TempMax &lt;- MeanPerIncrement[MeanPerIncrement[,1] == max(MeanPerIncrement[,1]),]
+MaxSteps &lt;- TempMax[1,1]
+MaxInc &lt;- TempMax[1,2]</code></pre>
+<p>So the max average value of the number of steps is <strong>206.1698113</strong> and the increment of time at which this maximum occurs is <strong>08:35</strong>.</p>
+</div>
+<div id="imputing-missing-values" class="section level2">
+<h2>Imputing missing values</h2>
+<p>This part will deal with the missing values (NA) in the dataset. I will first calculate the number of NA observations in the full dataset and based on this informations, the ones already computed and some temporary data, I will figure out what is the best strategy to fill these NAs with a value that will not impact too much the dataset. To confirm that I will calculate the mean and the median of the new dataset and compare them to the old values.</p>
+<p>To collect the number of NAs I used the dataset I already created (<strong><em>Activity.NA</em></strong>) and I returned the <strong>nrow()</strong>.</p>
+<pre class="r"><code>ValueNA &lt;- nrow(Activity.NA)</code></pre>
+<p>The Missing value represents <strong>2304</strong> observation which correspond to 8 full days.<br />A detailed observation of thedataset shows few things.</p>
+<ul>
+<li><p>The NA are all located on the steps.<br />There is no NAs on the date and the interval.</p></li>
+<li><p>The NAs are grouped per day.<br />There is no NAs in the middle of a day. This means that the NAs represent 2304 increments grouped in 8 days out of 61 (17568 increments).</p></li>
+<li><p>Percentage of NAs.<br />13% of NAs means that we need to be careful with the strategy to fill the NA as it could have an big impact in the final results. But also it could be very useful tofill these NAs with data so it will increase the accurracy of the final analysis.</p></li>
+</ul>
+<p>All the observations above can lead to the assumption that the NAs represent the days where the user did not wear the measurement device or this device was switched off.<br />As I wrote before, the NAs can’t be taken for a value, instead they show a lack of value and they should not be added to the calculation without being filled with values extrapolated from the already known information.<br />I decided to avoid the extreme values (max and min) and also the sum of the values as it will not reflect the reality. Finally I choosed to fill the NAs with an average value of the steps. Here I had two options.</p>
+<ul>
+<li><p><strong>Mean per increment</strong><br />This is equal to do the sum of the mean per increment.<br />In this case the median number of steps will be increased(mean is almost equal to median). This will not reflect the reality as it seems unlikely that the user made almost the same number of steps for all the NAs days.</p></li>
+<li><p><strong>Mean per day</strong><br />This is equal to do the mean of the sum of increments.<br />In this case the number of steps per day will be spread and this could change the distribution. But in the other hands this could be more realistic.</p></li>
+</ul>
+<p>I choosed to do a mean per day because I preferred to have a more realistic distribution even if it changes the shape of the plot.<br />Furthermore the NAs are all grouped per day and so I assumed that the average number of steps during these days should be almost the same than during the same days where the measurment was done. In other words I used the following algorithm.</p>
+<center> 
+<strong><em>IF NAs day = day x:<br />NAs = mean of all the days x</em></strong>
+</center> 
+<p><br></p>
+<p>I Added the weekday to the datasets created in the first part (i.e. <strong><em>SumPerDay</em></strong> and <strong><em>SumPerDayNA</em></strong>).</p>
+<pre class="r"><code>MeanPerDay &lt;- data.frame()
+
+TempDay &lt;- as.data.frame(weekdays(as.Date(SumPerDay[,2])))
+TempDayNA &lt;- as.data.frame(weekdays(as.Date(SumPerDayNA[,2])))
+SumPerDay &lt;- cbind(SumPerDay, TempDay)
+SumPerDayNA &lt;- cbind(SumPerDayNA, TempDayNA)</code></pre>
+<p>I calculated the mean per day for each days.</p>
+<pre class="r"><code>for(i in DayName) {
+        MeanPerDay &lt;- rbind(MeanPerDay, round(mean(SumPerDay[SumPerDay[,3] == as.character(i),1]), digits=0))
+}
+MeanPerDay &lt;- cbind(MeanPerDay, DayName)
+colnames(MeanPerDay) &lt;- c(&#39;mean&#39;, &#39;day&#39;)</code></pre>
+<p>I Replaced the NA by the correct mean for the correct day.</p>
+<pre class="r"><code>TempNA &lt;- which (is.na(SumPerDayNA))
+for (i in TempNA){
+        TempWeekdayNA &lt;- SumPerDayNA[i,3]
+        for (n in MeanPerDay[,2]) {
+               if (identical(as.character(TempWeekdayNA), as.character(n))) {
+                       SumPerDayNA[i,1] &lt;- MeanPerDay[MeanPerDay[,2]==n,1]
+                }    
+        }
+}
+colnames(SumPerDayNA) &lt;- c(&#39;steps&#39;, &#39;date&#39;, &#39;days&#39;)</code></pre>
+<p>As example of the result, I show the first value of the dataset. This days was a Monday and without the NA filling, the first data were NA.</p>
+<pre class="r"><code>print(ex1)</code></pre>
+<pre><code>##   steps       date
+## 1    NA 2012-10-01</code></pre>
+<p>After the completion of the operation, the first value was filled with the mean value for the Monday.</p>
+<pre class="r"><code>print(SumPerDayNA[1,1:2])</code></pre>
+<pre><code>##   steps       date
+## 1  9975 2012-10-01</code></pre>
+<p>I Plotted the histogram with the same graphics parameters than the one in part <em>“What is mean total number of steps taken per day?”</em> to keep the coherency between the two plots.</p>
+<pre class="r"><code>colors &lt;- c(&quot;red&quot;, &quot;yellow&quot;, &quot;green&quot;, &quot;violet&quot;, &quot;orange&quot;, &quot;blue&quot;, &quot;pink&quot;, &quot;cyan&quot;) 
+bins &lt;- seq(min(min(SumPerDayNA[,1])), max(SumPerDayNA[,1]), 846.12)
+hist(SumPerDayNA[,1], 
+     main=&#39;Total Number Of Steps Each Day After NAs Adjustment&#39;, 
+     xlab=&#39;Steps&#39;, 
+     ylab = &#39;Number Of Days&#39;,
+     xaxt=&#39;n&#39;,
+     right=FALSE, col=colors, 
+     breaks=bins, 
+     ylim=c(0,10))
+axis(1, at=bins, labels=bins)</code></pre>
+<p><img src="figure/unnamed-chunk-15-1.png" /></p>
+<p>The new plot, compared to the previous one, shows an increase in the range between roughly 8000 and 13000 steps. The values reported by the MeanPerDay data frame explain this behavior.</p>
+<pre class="r"><code>print(MeanPerDay)</code></pre>
+<pre><code>##    mean       day
+## 1  9975    Monday
+## 2  8950   Tuesday
+## 3 11791 Wednesday
+## 4  8213  Thursday
+## 5 12360    Friday
+## 6 12535  Saturday
+## 7 12278    Sunday</code></pre>
+<p>The range 10000 to 13000 steps is increased by 5 new obeservations and the range of 8000 to 10000 steps is increased by 3.<br />The plot is still showing a central range between roughly 8000 and 13000 steps, but this time there is an uniformisation where each bins are almost of the same frequency. Also I noticed that the outliers are untouched, which is normal because no modifications were done in the extreme values.<br />I calculated the mean and median and I compared them to the previous values.</p>
+<pre class="r"><code>options(scipen=999)
+MeanPerDayNA &lt;- mean(SumPerDayNA[,1])
+MedianPerDayNA &lt;- median(SumPerDayNA[,1])</code></pre>
+<p>The mean and the median show slight variations compare to the previous values.</p>
+<ul>
+<li>Previous Values
+<ul>
+<li>Mean: 10766.19 (10766.1886792)<br /></li>
+<li>Median: 10765<br /></li>
+</ul></li>
+<li>New Values
+<ul>
+<li>Mean: 10821.23 (10821.2295082)<br /></li>
+<li>Median: 11015</li>
+</ul></li>
+</ul>
+<p>The variation between the old and new values are of 0.51% for the mean and 2.32% for the median.<br />If the variation between the new mean and median was increased.<br />This change (median &gt; mean) could indicate that the histogram is now right-skewed but this difference is not important enough to confirm that and because of the uniformisation in the middle range, this plot is still symetric.<br />This plot show some such strong similarities with the previous one than it is possible to conclude that filling the NAs didn’t change the plot.</p>
+</div>
+<div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
+<h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+<p>This part will analyse the potential difference between the measurment done in point 2 (mean per increment) and the relationship between the weekday and the weekend.</p>
+<p>The computation of the information is done on the average number of steps per time increment. As I worked on the dataset with the NAs filled but because I choosed another strategy to fill the NAs (use of the average steps per day), I don’t have a dataset with the NAs time increments filled and I had to rebuild it from scratch. To do that I recycled the code I used in the part <em>“Imputing missing values”</em>. I’ve added a new column in the dataset to indicate if a day is a weekday.</p>
+<p>I Filled the NAs with the mean per increment already computed in the part “Average Daily Pattern”. I recycled the code alredy used for the part <em>“Imputing missing values”</em> and so the NAs are filled with the mean of the same complete increment (00:00 -&gt; 00:00, 00:05 -&gt; 00:05 …)</p>
+<pre class="r"><code>WeekEnds &lt;- c(&#39;Saturday&#39;, &#39;Sunday&#39;)
+WeekDays &lt;- DayName[! DayName %in% WeekEnds]
+
+DaysOfActivity &lt;- cbind(Activity, weekdays(as.Date(Activity[,2])), time.df[,1])
+TempNA &lt;- which (is.na(DaysOfActivity))
+for (i in TempNA){
+        TempIncNA &lt;-  DaysOfActivity[i,5]
+
+        for (n in MeanPerIncrement[,2]) {
+               if (identical(as.character(TempIncNA), as.character(n))) {
+                       DaysOfActivity[i,1] &lt;- MeanPerIncrement[MeanPerIncrement[,2]==n,1]
+                }    
+        }
+}
+
+DaysOfActivity[DaysOfActivity[,4] %in% WeekDays, 6] &lt;- &#39;Weekday&#39;
+DaysOfActivity[DaysOfActivity[,4] %in% WeekEnds, 6] &lt;- &#39;Weekend&#39;
+colnames(DaysOfActivity) &lt;- c(&#39;steps&#39;, &#39;date&#39;, &#39;interval&#39;, &#39;days&#39;, &#39;time&#39;, &#39;day_of_the_week&#39;)
+
+IncrementPerWeekday &lt;- data.frame()
+for(i in  unique(DaysOfActivity[,2])) {
+        IncrementPerWeekday &lt;- rbind(IncrementPerWeekday, sum(DaysOfActivity[DaysOfActivity[,2] == i,1]))
+}</code></pre>
+<p>I split the data frame in two, one for the weekdays and the other for the weekends. I calculated the mean for each increment for each data frame.</p>
+<pre class="r"><code>IncrementPerWeekday &lt;- data.frame()
+IncrementPerWeekend &lt;- data.frame()
+
+WeekdaysOfActivity &lt;- subset(DaysOfActivity, day_of_the_week == &quot;Weekday&quot;, select=c(steps, time))
+WeekendsOfActivity &lt;- subset(DaysOfActivity, day_of_the_week == &quot;Weekend&quot;, select=c(steps, time))
+
+for(i in  unique(WeekdaysOfActivity[,2])) {
+        IncrementPerWeekday &lt;- rbind(IncrementPerWeekday, mean(WeekdaysOfActivity[WeekdaysOfActivity[,2] == i,1]))
+}
+
+for(i in  unique(WeekendsOfActivity[,2])) {
+        IncrementPerWeekend &lt;- rbind(IncrementPerWeekend, mean(WeekendsOfActivity[WeekendsOfActivity[,2] == i,1]))
+}</code></pre>
+<p>I used the same graphical parameters than the ones in <em>“What is mean total number of steps taken per day?”</em> to draw the time series.</p>
+<pre class="r"><code>par(mfrow = c(2,1))
+
+par(mar = c(bottom=1.5, 5.1, top=4, 2.1))
+plot(IncrementPerWeekday[,1], 
+     type=&#39;l&#39;, 
+     xaxt=&#39;n&#39;,
+     xlab=&#39;&#39;,
+     ylab=&quot;Average Number Of Steps&quot;,
+     main=&quot;Average Steps Number Per Weekdays&quot;)
+axis(1, 
+     at=c(1:288), 
+     labels=as.character(unique(TimeFreq)), 
+     &#39;day&#39;)
+
+par(mar = c(bottom=4, 5.1, top=5, 2.1))
+plot(IncrementPerWeekend[,1], 
+     type=&#39;l&#39;, 
+     xaxt=&#39;n&#39;,
+     xlab=&#39;&#39;,
+     ylab=&quot;Average Number Of Steps&quot;,
+     main=&quot;Average Steps Number Per Weekend&quot;)
+axis(1, 
+     at=c(1:288), 
+     labels=as.character(unique(TimeFreq)), 
+     &#39;day&#39;)</code></pre>
+<p><img src="figure/unnamed-chunk-20-1.png" /></p>
+<p>The plot shows that there is a relation between the days of the week and the activity. The activity is more important during the early morning in the weekdays. This seems to show that the user is someone who do sport in the morning because the maximum steps is in the morning (206.17, 08:35). This maximum is reached only during the weekdays as the cross comparison between the plots can show. Also the peaks during the working hours are see are located in the weekend plot.<br />One assumption that can explain this is if the user of the device is potentially an office worker (low steps during the working hours in the weekdays) doing his/her sport before going to work. It is diffcult with only these plots to figure out why there is an increase in the steps number during the working hours of the weekend but one assumption can be that the user is active during the weekend doing some external activity.</p>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
