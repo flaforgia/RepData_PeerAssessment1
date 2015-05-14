@@ -25,7 +25,8 @@ There is also a part about the data collection and the transformations applied t
 
 ## Loading and preprocessing the data
 
-The dataset has been downloaded from a web repository ([Download here][4]), the file is provided as a zip file. After being unzipped, it has been loaded in R as a data frame.
+The dataset has been downloaded from a web repository ([Download here][4]), the file is provided as a zip file. 
+The zipped file must be saved in the same directory than this Rmd file. Once it is done, execute the chunk of code below.  
 
 
 ```r

@@ -70,7 +70,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
-<p>The dataset has been downloaded from a web repository (<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Download here</a>), the file is provided as a zip file. After being unzipped, it has been loaded in R as a data frame.</p>
+<p>The dataset has been downloaded from a web repository (<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Download here</a>), the file is provided as a zip file. The zipped file must be saved in the same directory than this Rmd file. Once it is done, execute the chunk of code below.</p>
 <pre class="r"><code>unzip(&#39;activity.zip&#39;)
 Activity &lt;- read.csv(&#39;activity.csv&#39;)
 head(Activity)</code></pre>
