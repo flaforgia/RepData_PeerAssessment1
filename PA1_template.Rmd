@@ -32,7 +32,7 @@ There is also a part about the data collection and the transformations applied t
 ## Loading and preprocessing the data
 
 The dataset has been downloaded from a web repository ([Download here][4]), the file is provided as a zip file. 
-The zipped file must be saved in the same directory than this Rmd file. Once it is done, execute the chunk of code below.  
+The file is downloaded directly by the code from the repository where the document is stored and is unzipped in the local directory.   
 
 ```{r}
 url <- ("http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip")

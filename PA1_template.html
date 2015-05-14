@@ -70,7 +70,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
-<p>The dataset has been downloaded from a web repository (<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Download here</a>), the file is provided as a zip file. The zipped file must be saved in the same directory than this Rmd file. Once it is done, execute the chunk of code below.</p>
+<p>The dataset has been downloaded from a web repository (<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Download here</a>), the file is provided as a zip file. The file is downloaded directly by the code from the repository where the document is stored and is unzipped in the local directory.</p>
 <pre class="r"><code>url &lt;- (&quot;http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;)
 download.file(url, &#39;activity.zip&#39;, mode=&#39;wb&#39;)
 unzip(&#39;activity.zip&#39;)
